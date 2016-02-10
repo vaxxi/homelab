@@ -104,7 +104,7 @@ while True:
   
 
   # sleep before a new batch of data
-  time.sleep(10)
+  time.sleep(60)
 
 # close the socket  
 sock.close()
