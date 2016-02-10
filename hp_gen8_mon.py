@@ -3,12 +3,15 @@
 import netsnmp
 import time
 import socket
+import subprocess
+import json
 
 # monitored host settings
 HOST='127.0.0.1'
 ILOHOST='192.168.1.23'
 SNMP_COMMUNITY='public'
 SNMP_VERSION=2
+USE_IPMI=1
 
 # change this array to match your network interface index numbers
 INTERFACE_ID=(2,3)
@@ -24,6 +27,11 @@ sock.connect((CARBON_SERVER, CARBON_PORT))
 def QueryLoad(ccname,host,community,version,mibname):
   qval=netsnmp.snmpget(netsnmp.Varbind(mibname), Version = version, DestHost = host, Community = community)
   carbonmsg=ccname + ' ' + qval[0] + ' %d\n' % int(time.time())
+  print "Sending message: %s \n" % carbonmsg
+  sock.sendall(carbonmsg)
+
+def SimpleLoad(ccname,ccval):
+  carbonmsg=ccname + ' ' + ccval + ' %d\n' % int(time.time())
   print "Sending message: %s \n" % carbonmsg
   sock.sendall(carbonmsg)
 
@@ -83,25 +91,49 @@ while True:
   QueryLoad("hp.cpu.raw.interrupt",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_rawinterrupt)
   
   # get ILO temperatures
-  temp_inlet="enterprises.232.6.2.6.8.1.4.0.1"
-  temp_cpu="enterprises.232.6.2.6.8.1.4.0.2"
-  temp_dimm="enterprises.232.6.2.6.8.1.4.0.3"
-  temp_chipset="enterprises.232.6.2.6.8.1.4.0.5"
-  temp_chipsetzone="enterprises.232.6.2.6.8.1.4.0.6"
-  temp_vrzone="enterprises.232.6.2.6.8.1.4.0.7"
-  temp_ilozone="enterprises.232.6.2.6.8.1.4.0.9"
-  temp_pci="enterprises.232.6.2.6.8.1.4.0.11"
-  temp_pcizone="enterprises.232.6.2.6.8.1.4.0.12"
-  QueryLoad('hp.ilo.temp.inlet',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_inlet)
-  QueryLoad('hp.ilo.temp.cpu',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_cpu)
-  QueryLoad('hp.ilo.temp.dimm',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_dimm)
-  QueryLoad('hp.ilo.temp.chipset',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_chipset)
-  QueryLoad('hp.ilo.temp.chipsetzone',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_chipsetzone)
-  QueryLoad('hp.ilo.temp.vrzone',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_vrzone)
-  QueryLoad('hp.ilo.temp.ilozone',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_ilozone)
-  QueryLoad('hp.ilo.temp.pci',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_pci)
-  QueryLoad('hp.ilo.temp.pcizone',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_pcizone)
-  
+  if USE_IPMI==0:
+    temp_inlet="enterprises.232.6.2.6.8.1.4.0.1"
+    temp_cpu="enterprises.232.6.2.6.8.1.4.0.2"
+    temp_dimm="enterprises.232.6.2.6.8.1.4.0.3"
+    temp_chipset="enterprises.232.6.2.6.8.1.4.0.5"
+    temp_chipsetzone="enterprises.232.6.2.6.8.1.4.0.6"
+    temp_vrzone="enterprises.232.6.2.6.8.1.4.0.7"
+    temp_ilozone="enterprises.232.6.2.6.8.1.4.0.9"
+    temp_pci="enterprises.232.6.2.6.8.1.4.0.11"
+    temp_pcizone="enterprises.232.6.2.6.8.1.4.0.12"
+    QueryLoad('hp.ilo.temp.inlet',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_inlet)
+    QueryLoad('hp.ilo.temp.cpu',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_cpu)
+    QueryLoad('hp.ilo.temp.dimm',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_dimm)
+    QueryLoad('hp.ilo.temp.chipset',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_chipset)
+    QueryLoad('hp.ilo.temp.chipsetzone',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_chipsetzone)
+    QueryLoad('hp.ilo.temp.vrzone',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_vrzone)
+    QueryLoad('hp.ilo.temp.ilozone',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_ilozone)
+    QueryLoad('hp.ilo.temp.pci',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_pci)
+    QueryLoad('hp.ilo.temp.pcizone',ILOHOST, SNMP_COMMUNITY, SNMP_VERSION, temp_pcizone)
+  else:  
+    ipmi_sdr=subprocess.check_output(['ipmitool','sdr']).strip().split("\n")
+    ipmi_values_dict = {}
+    ipmi_status_dict = {}
+    for sdr_row in ipmi_sdr:
+      vals = sdr_row.split("|")
+      vals = map(lambda s: s.strip(), vals)
+      ipmi_values_dict[vals[0]]=vals[1]
+      ipmi_status_dict[vals[0]]=vals[2]
+    SimpleLoad('hp.ilo.temp.inlet',ipmi_values_dict["01-Inlet Ambient"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.cpu',ipmi_values_dict["02-CPU"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.dimm',ipmi_values_dict["03-P1 DIMM 1-2"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.chipset',ipmi_values_dict["05-Chipset"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.chipsetzone',ipmi_values_dict["06-Chipset Zone"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.vrzone',ipmi_values_dict["07-VR P1 Zone"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.ilozone',ipmi_values_dict["09-iLO Zone"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.pci',ipmi_values_dict["10-PCI 1"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.pcizone',ipmi_values_dict["11-PCI 1 Zone"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.temp.exhaust',ipmi_values_dict["12-Sys Exhaust"].strip(" degrees C"))
+    SimpleLoad('hp.ilo.fan.rpm',ipmi_values_dict["Fan 1"].strip(" percent"))
+#    print json.dumps(ipmi_values_dict, sort_keys=True, indent=4)
+#    print json.dumps(ipmi_status_dict, sort_keys=True, indent=4)
+        
+
 
   # sleep before a new batch of data
   time.sleep(60)
