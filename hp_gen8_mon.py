@@ -8,34 +8,43 @@ import json
 
 # monitored host settings
 HOST='127.0.0.1'
-ILOHOST='192.168.1.23'
+ILOHOST='{ILOM_IP}'
 SNMP_COMMUNITY='public'
 SNMP_VERSION=2
 USE_IPMI=1
 
-# change this array to match your network interface index numbers
+# change this array to match your network interface SNMP index numbers
 INTERFACE_ID=(2,3)
 
+# change this array to match your disk SNMP index numbers
+DISK_ID=(1,30,31,33)
+
 # change to your Carbon server hostname and port
-CARBON_SERVER='deb3'
+CARBON_SERVER='{CARBON_IP}'
 CARBON_PORT=2003
 
 # open Carbon socket and keep it open while pushing data
 sock = socket.socket()
 sock.connect((CARBON_SERVER, CARBON_PORT))
 
+# change DEBUG to 1 if you wish to print messages sent to Carbon in console
+DEBUG=0
+
 def QueryLoad(ccname,host,community,version,mibname):
   qval=netsnmp.snmpget(netsnmp.Varbind(mibname), Version = version, DestHost = host, Community = community)
   carbonmsg=ccname + ' ' + qval[0] + ' %d\n' % int(time.time())
-  print "Sending message: %s \n" % carbonmsg
+  if DEBUG==1:
+    print "Sending message: %s \n" % carbonmsg
   sock.sendall(carbonmsg)
 
 def SimpleLoad(ccname,ccval):
   carbonmsg=ccname + ' ' + ccval + ' %d\n' % int(time.time())
-  print "Sending message: %s \n" % carbonmsg
+  if DEBUG==1:
+    print "Sending message: %s \n" % carbonmsg
   sock.sendall(carbonmsg)
 
 while True:
+
   # get network interface data
   for i in INTERFACE_ID:
     # define SNMP OIDs
@@ -130,32 +139,22 @@ while True:
     SimpleLoad('hp.ilo.temp.pcizone',ipmi_values_dict["11-PCI 1 Zone"].strip(" degrees C"))
     SimpleLoad('hp.ilo.temp.exhaust',ipmi_values_dict["12-Sys Exhaust"].strip(" degrees C"))
     SimpleLoad('hp.ilo.fan.rpm',ipmi_values_dict["Fan 1"].strip(" percent"))
-#    print json.dumps(ipmi_values_dict, sort_keys=True, indent=4)
-#    print json.dumps(ipmi_status_dict, sort_keys=True, indent=4)
-        
-
-
+    
+    
+    # get disk counters
+    for i in DISK_ID:
+      dsk_device="UCD-SNMP-MIB::dskDevice." + str(i)
+      dsk_total="UCD-SNMP-MIB::dskTotal." + str(i)
+      dsk_avail="UCD-SNMP-MIB::dskAvail." + str(i)
+      dsk_used="UCD-SNMP-MIB::dskUsed." + str(i)
+      disk_device=netsnmp.snmpget(netsnmp.Varbind(dsk_device), Version=SNMP_VERSION, DestHost=HOST, Community=SNMP_COMMUNITY)
+      disk_device=netsnmp.snmpget(netsnmp.Varbind(dsk_device), Version=SNMP_VERSION, DestHost=HOST, Community=SNMP_COMMUNITY)
+      QueryLoad('hp.disk.'+disk_device[0].strip('/dev/')+'.avail',HOST,SNMP_COMMUNITY,SNMP_VERSION,dsk_avail)
+      QueryLoad('hp.disk.'+disk_device[0].strip('/dev/')+'.used',HOST,SNMP_COMMUNITY,SNMP_VERSION,dsk_used)
+      QueryLoad('hp.disk.'+disk_device[0].strip('/dev/')+'.total',HOST,SNMP_COMMUNITY,SNMP_VERSION,dsk_total)
+                                            
   # sleep before a new batch of data
   time.sleep(60)
 
 # close the socket  
 sock.close()
-
-
-#session = netsnmp.Session(DestHost='localhost', Version=2, Community='public')
-#vars = netsnmp.VarList(netsnmp.Varbind('sysDescr', '0'))
-#session.get(vars)
-
-
-
-
-
-
-
-
-
-
-#write
-#var = netsnmp.Varbind('enterprises', '318.1.1.4.4.2.1.3.5', '1', 'INTEGER')
-#res = netsnmp.snmpset(var, Version = 1, DestHost='192.168.2.3', Community='writecommunity')
-                
