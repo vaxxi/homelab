@@ -7,8 +7,8 @@ import subprocess
 import json
 
 # monitored host settings
-HOST='127.0.0.1'
-ILOHOST='192.168.1.23'
+HOST='{SNMP_HOST}'
+ILOHOST='{ILO_HOST}'
 SNMP_COMMUNITY='public'
 SNMP_VERSION=2
 USE_IPMI=1
@@ -20,7 +20,7 @@ INTERFACE_ID=(2,3)
 DISK_ID=(1,30,31,33)
 
 # change to your Carbon server hostname and port
-CARBON_SERVER='monitory'
+CARBON_SERVER='{CARBON_HOST}'
 CARBON_PORT=2003
 
 # open Carbon socket and keep it open while pushing data
