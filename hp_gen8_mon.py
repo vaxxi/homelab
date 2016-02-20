@@ -8,7 +8,7 @@ import json
 
 # monitored host settings
 HOST='127.0.0.1'
-ILOHOST='{ILOM_IP}'
+ILOHOST='192.168.1.23'
 SNMP_COMMUNITY='public'
 SNMP_VERSION=2
 USE_IPMI=1
@@ -20,7 +20,7 @@ INTERFACE_ID=(2,3)
 DISK_ID=(1,30,31,33)
 
 # change to your Carbon server hostname and port
-CARBON_SERVER='{CARBON_IP}'
+CARBON_SERVER='monitory'
 CARBON_PORT=2003
 
 # open Carbon socket and keep it open while pushing data
@@ -91,6 +91,11 @@ while True:
   cpu_rawwait="UCD-SNMP-MIB::ssCpuRawWait." + str(i)
   cpu_rawkernel="UCD-SNMP-MIB::ssCpuRawKernel." + str(i)
   cpu_rawinterrupt="UCD-SNMP-MIB::ssCpuRawInterrupt." + str(i)
+  cpu_load_1="UCD-SNMP-MIB::laLoadInt.1"
+  cpu_load_5="UCD-SNMP-MIB::laLoadInt.2"
+  cpu_load_15="UCD-SNMP-MIB::laLoadInt.3"
+  cpu_core_0="HOST-RESOURCES-MIB::hrProcessorLoad.196608"
+  cpu_core_1="HOST-RESOURCES-MIB::hrProcessorLoad.196609"
   QueryLoad("hp.cpu.raw.user",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_rawuser)
   QueryLoad("hp.cpu.raw.nice",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_rawnice)  
   QueryLoad("hp.cpu.raw.system",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_rawsystem)  
@@ -98,6 +103,11 @@ while True:
   QueryLoad("hp.cpu.raw.wait",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_rawwait)  
   QueryLoad("hp.cpu.raw.kernel",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_rawkernel)
   QueryLoad("hp.cpu.raw.interrupt",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_rawinterrupt)
+  QueryLoad("hp.cpu.load.1",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_load_1)
+  QueryLoad("hp.cpu.load.5",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_load_5)
+  QueryLoad("hp.cpu.load.15",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_load_15)
+  QueryLoad("hp.cpu.core.0",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_core_0)  
+  QueryLoad("hp.cpu.core.1",HOST,SNMP_COMMUNITY, SNMP_VERSION, cpu_core_1)
   
   # get ILO temperatures
   if USE_IPMI==0:
@@ -152,7 +162,7 @@ while True:
       QueryLoad('hp.disk.'+disk_device[0].strip('/dev/')+'.avail',HOST,SNMP_COMMUNITY,SNMP_VERSION,dsk_avail)
       QueryLoad('hp.disk.'+disk_device[0].strip('/dev/')+'.used',HOST,SNMP_COMMUNITY,SNMP_VERSION,dsk_used)
       QueryLoad('hp.disk.'+disk_device[0].strip('/dev/')+'.total',HOST,SNMP_COMMUNITY,SNMP_VERSION,dsk_total)
-                                            
+
   # sleep before a new batch of data
   time.sleep(60)
 
