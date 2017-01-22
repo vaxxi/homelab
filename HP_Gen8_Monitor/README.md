@@ -74,7 +74,7 @@ aliasByNode(derivative(scale(microserver.cpu.raw.*, 0.1)), 3)
 
 In the Display tab, check `Stack` and `Percent`. Choose `Stacked value = cumulative`. Should give you this:
 
-![CPU graph](HP_Gen8/screenshots/graph_cpu.png "CPU graph")
+![CPU graph](screenshots/graph_cpu.png "CPU graph")
 
 #### Disk space
 
@@ -85,7 +85,7 @@ aliasByNode(microserver.disk.*.avail, 2)
 
 Left Y axis set to `kilobytes`, check `Stack` and `Stacked value = individual` in the Display tab. Should give you this:
 
-![Disk graph](HP_Gen8/screenshots/graph_disk.png "Disk graph")
+![Disk graph](screenshots/graph_disk.png "Disk graph")
 
 #### Network traffic
 
@@ -103,7 +103,7 @@ aliasByNode(scale(scaleToSeconds(nonNegativeDerivative(microserve.net.eno2.out),
 
 Set the left Y axis to bytes/sec and you should have this:
 
-![Network graph](HP_Gen8/screenshots/graph_net.png "Network graph")
+![Network graph](screenshots/graph_net.png "Network graph")
 
 #### Memory
 
@@ -118,7 +118,7 @@ alias(sumSeries(microserver.mem.memBuffer,microserver.mem.memCached,microserver.
 ```
 to graph the memory used by the system.
 
-![Memory graph](HP_Gen8/screenshots/graph_mem.png "Memory graph")
+![Memory graph](screenshots/graph_mem.png "Memory graph")
 
 #### Environment
 
