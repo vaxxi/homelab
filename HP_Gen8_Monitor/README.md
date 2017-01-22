@@ -1,6 +1,4 @@
-# Homelab
-
-## HP Microserver monitoring script
+# HP Microserver monitoring script
 
 The [hp_gen8_monitor.py](HP_Gen8/hp_gen8_monitor.py) script will monitor temperatures reported 
 by the ILO subsystem and basic system information:
@@ -12,7 +10,7 @@ by the ILO subsystem and basic system information:
 Disks and network interface are automatically detected. System information is retrieved through SNMP. 
 ILO temperatures and fan speed can be retrieved through the `ipmitool` command line utility or SNMP. Data is sent towards a configurable Carbon server. 
 
-### Installation
+## Installation
 
 The script is tested on CentOS/Fedora and Debian, but should run on any distribution as long as the proper Python packages are installed. 
 
@@ -31,7 +29,7 @@ The script is tested on CentOS/Fedora and Debian, but should run on any distribu
 | `CARBON_PORT` | UDP port where the Carbon server is listening, default 2003. |
 | `DEBUG` | If set to `1` the script will print metrics, values and timestamps directly in the console in both JSON and Carbon format. |
 
-#### Install packages for CentOS
+### Install packages for CentOS
 
 ```
 yum -y install net-snmp-python ipmitool net-snmp-utils net-snmp-libs
@@ -63,9 +61,9 @@ microserver.cpu.raw.ssCpuRawUser 20835282 1485088794
 microserver.cpu.raw.ssCpuRawWait 14447575 1485088794
 ```
 
-### Graphing data in Grafana
+## Graphing data in Grafana
 
-#### CPU usage 
+### CPU usage 
 
 Add this metric:
 ```
@@ -87,7 +85,7 @@ Left Y axis set to `kilobytes`, check `Stack` and `Stacked value = individual` i
 
 ![Disk graph](screenshots/graph_disk.png "Disk graph")
 
-#### Network traffic
+### Network traffic
 
 To graph incoming traffic, add these metrics:
 ```
@@ -120,7 +118,7 @@ to graph the memory used by the system.
 
 ![Memory graph](screenshots/graph_mem.png "Memory graph")
 
-#### Environment
+### Environment
 
 Fan speed can be graphed with:
 ```
@@ -131,4 +129,10 @@ Temperatures can be graphed with:
 ```
 aliasByMetric(microserver.env.ilo.*)
 ```
+
+## Useful references
+
+1. [Installing Graphite and Graphite Carbon](http://graphite.readthedocs.io/en/latest/install.html)
+2. [Installing Grafana](http://docs.grafana.org/installation/)
+3. [UCD-SNMP MIBs](http://www.net-snmp.org/docs/mibs/ucdavis.html), [IF MIBs](http://www.net-snmp.org/docs/mibs/interfaces.html)
 
