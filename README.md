@@ -74,6 +74,8 @@ aliasByNode(derivative(scale(microserver.cpu.raw.*, 0.1)), 3)
 
 In the Display tab, check `Stack` and `Percent`. Choose `Stacked value = cumulative`. Should give you this:
 
+![CPU graph](HP_Gen8/screenshots/graph_cpu.png "CPU graph")
+
 #### Memory usage
 
 Two sample metrics:
