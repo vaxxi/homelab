@@ -88,7 +88,7 @@ Left Y axis set to `kilobytes`. Should give you this:
 
 Add this metric:
 ```
-aliasByNode(hp01.disk.*.avail, 2)
+aliasByNode(microserve.disk.*.avail, 2)
 ```
 
 Left Y axis set to `kilobytes`, check `Stack` and `Stacked value = individual` in the Display tab. Should give you this:
@@ -103,8 +103,8 @@ aliasByNode(scaleToSeconds(nonNegativeDerivative(microserver.net.eno2.in), 1), 2
 
 To graph outgoing traffic as inverted traffic (below the horizontal axis) on the same panel, add these two:
 ```
-aliasByNode(scale(scaleToSeconds(nonNegativeDerivative(hp01.net.eno1.out), 1), -1), 2)
-aliasByNode(scale(scaleToSeconds(nonNegativeDerivative(hp01.net.eno2.out), 1), -1), 2)
+aliasByNode(scale(scaleToSeconds(nonNegativeDerivative(microserve.net.eno1.out), 1), -1), 2)
+aliasByNode(scale(scaleToSeconds(nonNegativeDerivative(microserve.net.eno2.out), 1), -1), 2)
 ```
 
 Set the left Y axis to bytes/sec and you should have this:
@@ -118,7 +118,7 @@ aliasByMetric(microserver.mem.memTotalReal)
 
 to draw a line indicating the total physical memory limit and:
 ```
-alias(sumSeries(hp01.mem.memBuffer,hp01.mem.memCached,hp01.mem.memShared),'Used')
+alias(sumSeries(microserve.mem.memBuffer,microserve.mem.memCached,microserve.mem.memShared),'Used')
 ```
 to graph the memory used by the system.
 
