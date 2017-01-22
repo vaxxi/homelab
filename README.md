@@ -103,7 +103,7 @@ aliasByNode(scale(scaleToSeconds(nonNegativeDerivative(microserve.net.eno2.out),
 
 Set the left Y axis to bytes/sec and you should have this:
 
-![Disk graph](HP_Gen8/screenshots/graph_disk.png "Disk graph")
+![Network graph](HP_Gen8/screenshots/graph_net.png "Network graph")
 
 #### Memory
 
