@@ -76,16 +76,6 @@ In the Display tab, check `Stack` and `Percent`. Choose `Stacked value = cumulat
 
 ![CPU graph](HP_Gen8/screenshots/graph_cpu.png "CPU graph")
 
-#### Memory usage
-
-Two sample metrics:
-```
-aliasByMetric(microserver.mem.memTotalReal)
-alias(sumSeries(microserver.mem.memBuffer,microserver.mem.memCached,microserver.mem.memShared),'Used')
-```
-
-Left Y axis set to `kilobytes`. Should give you this:
-
 #### Disk space
 
 Add this metric:
@@ -94,6 +84,8 @@ aliasByNode(microserve.disk.*.avail, 2)
 ```
 
 Left Y axis set to `kilobytes`, check `Stack` and `Stacked value = individual` in the Display tab. Should give you this:
+
+![Disk graph](HP_Gen8/screenshots/graph_disk.png "Disk graph")
 
 #### Network traffic
 
@@ -111,6 +103,8 @@ aliasByNode(scale(scaleToSeconds(nonNegativeDerivative(microserve.net.eno2.out),
 
 Set the left Y axis to bytes/sec and you should have this:
 
+![Disk graph](HP_Gen8/screenshots/graph_disk.png "Disk graph")
+
 #### Memory
 
 Set the left Y axis to `kilobytes` and add:
@@ -123,6 +117,8 @@ to draw a line indicating the total physical memory limit and:
 alias(sumSeries(microserve.mem.memBuffer,microserve.mem.memCached,microserve.mem.memShared),'Used')
 ```
 to graph the memory used by the system.
+
+![Memory graph](HP_Gen8/screenshots/graph_mem.png "Memory graph")
 
 #### Environment
 
