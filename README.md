@@ -80,7 +80,7 @@ In the Display tab, check `Stack` and `Percent`. Choose `Stacked value = cumulat
 
 Add this metric:
 ```
-aliasByNode(microserve.disk.*.avail, 2)
+aliasByNode(microserver.disk.*.avail, 2)
 ```
 
 Left Y axis set to `kilobytes`, check `Stack` and `Stacked value = individual` in the Display tab. Should give you this:
@@ -114,7 +114,7 @@ aliasByMetric(microserver.mem.memTotalReal)
 
 to draw a line indicating the total physical memory limit and:
 ```
-alias(sumSeries(microserve.mem.memBuffer,microserve.mem.memCached,microserve.mem.memShared),'Used')
+alias(sumSeries(microserver.mem.memBuffer,microserver.mem.memCached,microserver.mem.memShared),'Used')
 ```
 to graph the memory used by the system.
 
