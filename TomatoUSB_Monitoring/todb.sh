@@ -23,5 +23,5 @@ payload+="${cols[index]},host=${name} value=${vals[index]}"
 payload+=$'\n'
 done
 
-/opt/bin/curl -s -i -XPOST "http://$dbhost/write?db=$dbname&u=$user&p=$passwd" --data-binary "${payload}" > /dev/null
+/opt/bin/curl -m 5 -s -i -XPOST "http://$dbhost/write?db=$dbname&u=$user&p=$passwd" --data-binary "${payload}" > /dev/null
 
